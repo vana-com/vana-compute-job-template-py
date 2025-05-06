@@ -1,0 +1,1 @@
+docker run --rm -e DEV_MODE=1 -v ./input:/mnt/input -v ./output:/mnt/output my-compute-job

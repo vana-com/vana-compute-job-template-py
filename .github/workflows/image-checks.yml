@@ -19,11 +19,11 @@ jobs:
         uses: docker/setup-buildx-action@v2
       
       - name: Run image-build script
-        run: ./image-build.sh
+        run: ./scripts/image-build.sh
         shell: bash
       
       - name: Run image-run script
-        run: ./image-run.sh
+        run: ./scripts/image-run.sh
         shell: bash
 
       - name: Upload exported image
@@ -34,7 +34,7 @@ jobs:
           retention-days: 7
       
       - name: Run image-export script
-        run: ./image-export.sh
+        run: ./scripts/image-export.sh
         shell: bash
       
       - name: Upload exported image

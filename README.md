@@ -14,8 +14,33 @@ It processes the input data and outputs a `stats.json` under `/mnt/output/stats.
 2. Run `sqlite3 ./input/query_results.db < dummy_data.sql` to transform the seed data into an SQLite database that can be processed by the job.
 3. Update the `worker.py` to add any processing logic for artifact generation.
 4. Have the worker output any artifacts your application needs in the output dir `os.getenv("OUTPUT_PATH", "/mnt/output")`.
-5. Run the `image-build.sh` and `image-run.sh` scripts to test your worker implementation.
+5. Run the `image-build.sh` and `image-run.sh` scripts to test your worker implementation. Make sure to set `DEV_MODE=1` to use the local database file without requiring a real query engine.
 6. Run the `image-export.sh` script to generate the `my-compute-job.tar` archive. Gzip this manually or push your changes to main to build a release (with SHA256 checksum).
+
+## Development vs Production Mode
+
+The worker supports two modes of operation:
+
+- **Development Mode**: Set `DEV_MODE=1` to use a local database file without connecting to the query engine. This is useful for testing and development.
+  ```
+  # Example: Running in development mode
+  docker run -e DEV_MODE=1 -v /local/path/to/input:/mnt/input -v /local/path/to/output:/mnt/output my-compute-job
+  ```
+
+- **Production Mode**: The default mode connects to the query engine using the `QUERY` and `QUERY_SIGNATURE` environment variables to execute the query first, then processes the results.
+  ```
+  # Example: Running in production mode
+  docker run -e QUERY="SELECT user_id, locale FROM users" -e QUERY_SIGNATURE="xyz123" -e QUERY_ENGINE_URL="https://query.vana.org" -v /local/path/to/output:/mnt/output my-compute-job
+  ```
+
+## Platform Compatibility
+
+**Important**: Docker images must be compatible with AMD architecture to run properly in the Compute Engine's Trusted Execution Environments (TEEs). When building your Docker image:
+
+- Ensure all dependencies and binaries are AMD64-compatible
+- Build the Docker image on an AMD64 platform or use the `--platform=linux/amd64` flag with Docker buildx
+- Test the image in an AMD64 environment before submission
+- Avoid using architecture-specific binaries or libraries when possible
 
 ## Utility scripts
 
